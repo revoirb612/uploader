@@ -1,21 +1,31 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
 
 app = Flask(__name__)
 
 # 파일 업로드를 위한 기본 경로 설정
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+UPLOAD_FOLDER = '/home/Hong/uploader/static/uploads'
+ALLOWED_EXTENSIONS = {'html'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# 허용된 파일 확장자 확인
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def get_file_list():
+    files = [f for f in os.listdir(UPLOAD_FOLDER) if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+    # 파일을 마지막 수정 시간에 따라 정렬
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(UPLOAD_FOLDER, x)), reverse=True)
+    return files
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    file_list = get_file_list()
+    return render_template('index.html', files=file_list)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/', methods=['POST'])
 def upload_file():

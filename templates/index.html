@@ -1,172 +1,250 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>한뼘.html</title>
-    <!-- 폰트어썸 CDN 추가 -->
+    <title>한뼘코딩.com</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-    <!-- 기존 스타일 및 폰트 링크 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        h1, h2, h4 {
-            color: #333;
-        }
-
-        input[type=file] {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        input[type=submit] {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        input[type=submit]:hover {
-            background-color: #218838;
-        }
-
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-        }
-
-        .file-card {
-            background: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .file-card a {
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        iframe {
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-top: 0px;
-        }
-
-        /* 모달 배경 */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 0px;
-        }
-
-        /* 모달 콘텐츠 */
-        .modal-content {
-            background-color: #fefefe;
-            margin: 2.5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        /* 모달 닫기 버튼 */
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        /* Copyright 스타일 지정 */
-        #copyright {
-            text-align: center;
-            padding: 20px 0;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
-    <h1>한뼘.html</h1>
-    <h4>챗GPT 코딩 교육을 위한 웹페이지입니다.<br>html 파일 하나만으로 구현한 프로그램만 올릴 수 있습니다. by 홍쌤</h4>
+    <!-- header 포함 -->
+    {% include 'header.html' %}
 
-    <form action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".html">
-        <button type="submit"><i class="fas fa-upload"></i> 업로드</button>
-    </form>
-
-    <div class="file-grid">
-        {% for file in files %}
-            <div class="file-card">
-                <a href="{{ url_for('uploaded_file', filename=file) }}" target="iframe">
-                    <i class="fas fa-file-alt"></i>
-                    <span>{{ file }}</span>
-                </a>
+    <section>
+        {% if results %}
+        {% else %}
+            <div class="text-center">
+                <h4><br>AI 코딩 교육을 위한 html 오픈소스 프로젝트 사이트입니다<br>
+                업로드된 프로그램은 {{ total_files }}개, 총 조회수는 {{ total_views }}회입니다<br><br></h4>
             </div>
-        {% endfor %}
+        {% endif %}
+    </section>
+
+
+    <!-- 접힌 폼 -->
+    <div id="uploadForm" class="upload-form" style="display: none;">
+        <form action="/" method="post" enctype="multipart/form-data">
+            <h4><i class="fas fa-exclamation-triangle"></i><br>1. html 파일 하나만으로 작성한 프로그램만 올릴 수 있습니다.<br>2. 같은 파일명을 가진 파일은 업로드할 수 없습니다.<br>3. 프로그램 실행에 문제가 있거나 부적절한 내용 포함 시 예고없이 삭제될 수 있습니다.<br>4. 파일 수정, 삭제 및 기타 건의 사항은 관리자(홍쌤)에게 문의 바랍니다. ✉️ revoirb612@gmail.com</h4>
+            <input type="file" name="file" accept=".html">
+            <select name="category">
+                <option value="게임">게임</option>
+                <option value="홈페이지">홈페이지</option>
+                <option value="생산성">생산성</option>
+            </select>
+            <input type="text" name="author" placeholder="작성자 이름" required>
+            <textarea name="description" placeholder="프로그램 설명" required></textarea>
+            <input type="text" name="web_link" placeholder="챗GPT 프롬프트 공유 링크(선택 사항)">
+            <button type="submit"><i class="fas fa-upload"></i> 업로드</button>
+        </form>
     </div>
+
+    <main>
+        <!-- 파일 카드 섹션 -->
+        <div class="file-grid">
+            {% if results %}
+                <div class="plus-file-card">
+                    <!-- '+' 아이콘 버튼 -->
+                    <button id="toggleForm" class="toggle-button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                {% for file in results %}
+                    <div class="file-card">
+                        <div class="file-info">
+                            <small class="file-category"><sapn>{{ file[6] }}</sapn></small><br>
+                            <span class="file-name">{{ file[0] }}</span><br>
+                            <small class="file-author">{{ file[3] }}</small><br>
+                            <small class="file-description">{{ file[5] }}</small>
+                        </div>
+                        <div class="file-actions">
+                            <!-- 파일 실행 아이콘 -->
+                            <a href="{{ url_for('uploaded_file', filename=file[0]) }}" target="iframe">
+                                <i class="fas fa-play file-play-icon"></i>
+                            </a>
+                            <!-- 파일 내용 보기 아이콘 -->
+                            <a href="{{ url_for('file_content', filename=file[0]) }}" target="_blank">
+                                <i class="fas fa-file-alt file-icon"></i>
+                            </a>
+                            {% if file[8] %} <!-- 웹 링크가 있는지 확인 -->
+                                <a href="{{ file[8] }}" target="_blank" class="file-link-icon" data-filename="{{ file[0] }}">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            {% else %}
+                <div class="plus-file-card">
+                    <!-- '+' 아이콘 버튼 -->
+                    <button id="toggleForm" class="toggle-button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                {% for file in random_files_with_link %}
+                    <div class="random-file-card">
+                        <div class="file-info">
+                            <small class="file-category"><sapn>{{ file[6] }}</sapn></small><br>
+                            <span class="file-name">{{ file[0] }}</span><br>
+                            <small class="file-author">{{ file[3] }}</small><br>
+                            <small class="file-description">{{ file[5] }}</small>
+                        </div>
+                        <div class="file-actions">
+                            <!-- 파일 실행 아이콘 -->
+                            <a href="{{ url_for('uploaded_file', filename=file[0]) }}" target="iframe">
+                                <i class="fas fa-play file-play-icon"></i>
+                            </a>
+                            <!-- 파일 내용 보기 아이콘 -->
+                            <a href="{{ url_for('file_content', filename=file[0]) }}" target="_blank">
+                                <i class="fas fa-file-alt file-icon"></i>
+                            </a>
+                            {% if file[8] %} <!-- 웹 링크가 있는지 확인 -->
+                                <a href="{{ file[8] }}" target="_blank" class="file-link-icon" data-filename="{{ file[0] }}">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% for file in random_files %}
+                    <div class="random-file-card">
+                        <div class="file-info">
+                            <small class="file-category"><sapn>{{ file[6] }}</sapn></small><br>
+                            <span class="file-name">{{ file[0] }}</span><br>
+                            <small class="file-author">{{ file[3] }}</small><br>
+                            <small class="file-description">{{ file[5] }}</small>
+                        </div>
+                        <div class="file-actions">
+                            <!-- 파일 실행 아이콘 -->
+                            <a href="{{ url_for('uploaded_file', filename=file[0]) }}" target="iframe">
+                                <i class="fas fa-play file-play-icon"></i>
+                            </a>
+                            <!-- 파일 내용 보기 아이콘 -->
+                            <a href="{{ url_for('file_content', filename=file[0]) }}" target="_blank">
+                                <i class="fas fa-file-alt file-icon"></i>
+                            </a>
+                            {% if file[8] %} <!-- 웹 링크가 있는지 확인 -->
+                                <a href="{{ file[8] }}" target="_blank" class="file-link-icon" data-filename="{{ file[0] }}">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% for file in files %}
+                    <div class="file-card {% if file[9] %}recommended{% endif %}">
+                        <div class="file-info">
+                            <small class="file-category"><sapn>{{ file[6] }}</sapn></small><br>
+                            <span class="file-name">{{ file[0] }}</span><br>
+                            <small> 조회수: {{ file[7] }}</small><br>
+                            <small class="file-author">{{ file[3] }}</small><br>
+                            <small class="file-description">{{ file[5] }}</small>
+                        </div>
+                        <div class="file-actions">
+                            <!-- 파일 실행 아이콘 -->
+                            <a href="{{ url_for('uploaded_file', filename=file[0]) }}" target="iframe">
+                                <i class="fas fa-play file-play-icon"></i>
+                            </a>
+                            <!-- 파일 내용 보기 아이콘 -->
+                            <a href="{{ url_for('file_content', filename=file[0]) }}" target="_blank">
+                                <i class="fas fa-file-alt file-icon"></i>
+                            </a>
+                            {% if file[8] %} <!-- 웹 링크가 있는지 확인 (8번째 인덱스가 웹 링크를 나타낼 것으로 가정) -->
+                                <a href="{{ file[8] }}" target="_blank" class="file-link-icon" data-filename="{{ file[0] }}">
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </main>
+
+
+    {% if results %}
+    {% else %}
+        {% if not load_more %}
+            <!-- 다음 페이지 로드 버튼 -->
+            <button id="load-more-btn" class="toggle-button">
+                <i class="fas fa-arrow-down"></i>
+            </button>
+        {% endif %}
+    {% endif %}
 
     <!-- 모달 -->
     <div id="myModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
             <iframe name="iframe" style="width:100%; height:80vh;"></iframe>
         </div>
     </div>
 
-    <h4><i class="fas fa-exclamation-triangle"></i> 프로그램 실행에 문제가 있거나 파일명을 '제목_이름.html'로 올리지 않을 시 예고없이 삭제될 수 있습니다.</h4>
+    <!-- footer 포함 -->
+    {% include 'footer.html' %}
 
-    <!-- JavaScript -->
     <script>
-        // 모달
+        // 모달 및 body 요소
         var modal = document.getElementById("myModal");
+        var iframe = document.querySelector("#myModal iframe");
+        var body = document.body;
+        var currentPage = 0;  // 현재 페이지 번호
 
-        // 파일 카드 클릭시 모달 열기
-        document.querySelectorAll('.file-card a').forEach(item => {
-            item.onclick = function() {
+        // 파일 실행 아이콘 클릭 시 모달 열기 및 파일 로드
+        document.querySelectorAll('.file-play-icon').forEach(item => {
+            item.addEventListener('click', function(event) {
+                event.preventDefault();
+                var fileUrl = this.parentNode.getAttribute("href");
+                iframe.src = fileUrl;
                 modal.style.display = "block";
-            }
+                body.style.overflow = "hidden";
+            });
         });
-
-        // 닫기 버튼 클릭시 모달 닫기
-        document.getElementsByClassName("close")[0].onclick = function() {
-            modal.style.display = "none";
-        }
 
         // 모달 외부 클릭시 닫기
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
+                iframe.src = "";
+                body.style.overflow = "";
             }
         }
+
+        document.getElementById("toggleForm").addEventListener("click", function() {
+            var form = document.getElementById("uploadForm");
+            if (form.style.display === "none") {
+                form.style.display = "block";
+            } else {
+                form.style.display = "none";
+            }
+        });
+
+        let loadMoreBtn = document.getElementById('load-more-btn');
+
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                currentPage++;
+                fetch(`/load-more/${currentPage}`).then(response => response.text()).then(data => {
+                    if (data.trim()) {  // 반환된 데이터가 있는 경우
+                        var fileGrid = document.querySelector('.file-grid');
+                        fileGrid.innerHTML += data;
+                    } else {  // 반환된 데이터가 없는 경우 (빈 문자열)
+                        this.style.display = 'none';  // '다음' 버튼 숨기기
+                    }
+                });
+            })
+        }
+
     </script>
 </body>
 </html>
